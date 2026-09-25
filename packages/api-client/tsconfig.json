@@ -1,0 +1,4 @@
+{
+  "extends": "@mockprep/config/tsconfig/react-library.json",
+  "include": ["src", "test", "vitest.config.ts"]
+}

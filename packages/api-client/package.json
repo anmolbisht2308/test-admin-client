@@ -1,0 +1,35 @@
+{
+  "name": "@mockprep/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.2.0/mockprep-types-0.2.0.tgz",
+    "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@mockprep/config": "workspace:*",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "jsdom": "^30.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.2"
+  }
+}

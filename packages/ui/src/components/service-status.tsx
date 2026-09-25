@@ -11,8 +11,11 @@ type Check =
   | { state: "reachable"; health: HealthResponse; checkedAt: Date }
   | { state: "unreachable"; message: string; checkedAt: Date };
 
-export async function fetchHealth(apiUrl: string, signal?: AbortSignal): Promise<HealthResponse> {
-  const res = await fetch(`${apiUrl.replace(/\/$/, "")}/health`, { cache: "no-store", signal });
+export async function fetchHealth(
+  healthUrl: string,
+  signal?: AbortSignal,
+): Promise<HealthResponse> {
+  const res = await fetch(healthUrl, { cache: "no-store", signal });
   // 503 still carries a valid health body (status: degraded).
   return healthResponseSchema.parse(await res.json());
 }
@@ -31,19 +34,23 @@ function Chip({ label, up }: { label: string; up: boolean | undefined }) {
 }
 
 export interface ServiceStatusProps {
-  apiUrl: string;
+  /** Default "/api/health" (same origin, proxied to the api by the Next rewrite). */
+  healthUrl?: string;
   /** Re-check interval in ms (0 disables). */
   intervalMs?: number;
 }
 
 /** Shows API / DB / Redis as green or red chips, from GET /health. */
-export function ServiceStatus({ apiUrl, intervalMs = 15_000 }: ServiceStatusProps) {
+export function ServiceStatus({
+  healthUrl = "/api/health",
+  intervalMs = 15_000,
+}: ServiceStatusProps) {
   const [check, setCheck] = useState<Check>({ state: "loading" });
 
   const run = useCallback(
     async (signal?: AbortSignal) => {
       try {
-        const health = await fetchHealth(apiUrl, signal);
+        const health = await fetchHealth(healthUrl, signal);
         setCheck({ state: "reachable", health, checkedAt: new Date() });
       } catch (error) {
         if (signal?.aborted) return;
@@ -51,7 +58,7 @@ export function ServiceStatus({ apiUrl, intervalMs = 15_000 }: ServiceStatusProp
         setCheck({ state: "unreachable", message, checkedAt: new Date() });
       }
     },
-    [apiUrl],
+    [healthUrl],
   );
 
   useEffect(() => {
@@ -74,7 +81,7 @@ export function ServiceStatus({ apiUrl, intervalMs = 15_000 }: ServiceStatusProp
     <Card>
       <CardHeader>
         <CardTitle>Service status</CardTitle>
-        <CardDescription className="break-all">{apiUrl}/health</CardDescription>
+        <CardDescription className="break-all">{healthUrl}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2" aria-live="polite">

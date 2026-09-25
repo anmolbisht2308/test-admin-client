@@ -1,8 +1,10 @@
 export * from "./components/badge";
 export * from "./components/button";
 export * from "./components/card";
+export * from "./components/form";
 export * from "./components/input";
 export * from "./components/service-status";
+export * from "./components/table";
 export * from "./components/theme";
 export { cn } from "./lib/cn";
 // QuestionRenderer is exported from "@mockprep/ui/question-renderer" so KaTeX CSS

@@ -47,12 +47,22 @@ packages/
               compiled by Next via transpilePackages. `styles.css` = theme tokens (import after
               tailwindcss in each app's globals.css). QuestionRenderer is imported from
               `@mockprep/ui/question-renderer` (not the barrel) so KaTeX CSS/JS load only where used.
+  api-client/ @mockprep/api-client — createApiClient (same-origin fetch, in-memory access token,
+              refresh-once-and-retry on 401, refresh serialised across tabs via Web Locks),
+              AuthProvider/useAuth, ApiError, errorMessage(), fieldErrors() (zod issues → by path)
   config/     @mockprep/config — shared tsconfig (base, nextjs, react-library), eslint, prettier
-Each app: app/ (routes), components/ (app-only components), lib/env.ts (Zod-validated public env).
+web:   app/ (/, /login, /onboarding, /home, /exams, /exams/[slug] ISR 60 s, /status),
+       components/, lib/ (env.ts public env, server-api.ts, exams.ts, use-require-student.ts)
+admin: app/login, app/(panel)/* behind AdminShell (sidebar + guard): exams, templates, taxonomy,
+       status; components/ (forms, taxonomy tree), lib/ (roles.ts, use-api-query.ts)
 ```
 
-Both apps read the API base URL from `NEXT_PUBLIC_API_URL`. No Next.js API routes that duplicate
-server logic — business logic lives in the api.
+**Api access:** browsers call same-origin `/api/*`; `next.config.ts` rewrites to `API_ORIGIN`
+(server-only env) so refresh cookies are first-party. Server Components fetch `API_ORIGIN`
+directly (`lib/server-api.ts`). No Next.js API routes — business logic lives in the api.
+**Auth:** web uses `/api/auth/*` (cookie `mp_rt`), admin uses `/api/admin/auth/*` (cookie
+`mp_art`). Page guards are client-side (`useRequireStudent`, `AdminShell`); the api enforces
+roles. Hide write actions with `canEditContent(role)`.
 
 ## 4. Commands
 
@@ -64,13 +74,15 @@ pnpm dev              # web + admin in dev mode (needs the server repo's api run
 pnpm typecheck        # next typegen + tsc --noEmit everywhere
 pnpm lint             # eslint (next/core-web-vitals) + prettier --check
 pnpm test             # vitest (jsdom + Testing Library in packages/ui)
-pnpm build            # next build for both apps (needs NEXT_PUBLIC_API_URL)
+pnpm build            # next build for both apps (needs API_ORIGIN)
 pnpm format           # prettier --write .
 pnpm --filter @mockprep/web <script>   # run a script in one package
 ```
 
-Env: copy `apps/*/.env.example` → `.env.local`. Adding a public env var = add to that app's
-`lib/env.ts` (referenced literally so Next inlines it) + `.env.example` + README table + CI env.
+Env: copy `apps/*/.env.example` → `.env.local`. web: `API_ORIGIN`, `NEXT_PUBLIC_SITE_URL`,
+`NEXT_PUBLIC_GOOGLE_CLIENT_ID` (optional); admin: `API_ORIGIN`. Adding an env var = `lib/env.ts`
+(public vars referenced literally so Next inlines them) + `.env.example` + README table +
+`turbo.json` globalEnv (Turbo strips undeclared vars) + CI env.
 Ports: web 3000, admin 3001, api 4000.
 
 ## 5. Conventions
@@ -144,7 +156,7 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 | --- | ----------------------------------------- | ------ |
 | 0   | Project context (CLAUDE.md)               | done   |
 | 1   | Setup: monorepos, CI/CD, deploys, /health | done   |
-| 2   | Auth + exam catalogue + exam templates    |        |
+| 2   | Auth + exam catalogue + exam templates    | done   |
 | 3   | Question bank + test builder              |        |
 | 4   | PDF → test pipeline                       |        |
 | 5   | Test engine                               |        |
@@ -153,7 +165,7 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 | 8   | Live tests + notifications                |        |
 | 9   | More exams + hardening + launch           |        |
 
-**Current phase: 1 (complete) — next: Phase 2.**
+**Current phase: 2 (complete) — next: Phase 3.**
 
 ## 9. Change log
 
@@ -162,3 +174,8 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 - Phase 1: web + admin (Next 15.5, Tailwind v4, next-themes toggle, /status with health chips),
   packages/ui (Button, Card, Badge, Input, ThemeProvider/Toggle, ServiceStatus, QuestionRenderer
   with admin demo), CI on every push/PR, Vercel = two projects (root dirs apps/web, apps/admin).
+- Phase 2: Next rewrites proxy /api/* (first-party cookies; NEXT_PUBLIC_API_URL → API_ORIGIN),
+  packages/api-client, web login (OTP + optional Google) → onboarding → /home, /exams +
+  /exams/[slug] (ISR 60 s, metadata, JSON-LD); admin login + forced TOTP setup, sidebar shell,
+  exam/template editors (validated live with the shared Zod schemas), taxonomy tree. ui adds
+  Label, Textarea, Select (native), Field, Alert, Table. Types pinned to types-v0.2.0.
