@@ -11,9 +11,15 @@ export interface ApiClientOptions {
   fetch?: typeof fetch;
 }
 
+type Method = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+
 export interface RequestOptions<S extends z.ZodType> {
-  method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  method?: Method;
+  /** JSON body. */
   body?: unknown;
+  /** Raw body (e.g. a File) sent as-is with `contentType`, instead of JSON. */
+  rawBody?: BodyInit;
+  contentType?: string;
   /** Validates the response body. Omit for 204 responses. */
   schema?: S;
   /** Send the access token (default true). */
@@ -64,19 +70,29 @@ export function createApiClient(options: ApiClientOptions) {
     return inflight;
   }
 
-  async function request<S extends z.ZodType = z.ZodUnknown>(
+  /** Authed fetch with refresh-and-retry on 401. Returns the raw Response (any status). */
+  async function fetchRaw(
     path: string,
-    { method = "GET", body, schema, auth = true, signal }: RequestOptions<S> = {},
-  ): Promise<z.infer<S>> {
+    {
+      method = "GET",
+      body,
+      rawBody,
+      contentType,
+      auth = true,
+      signal,
+    }: Omit<RequestOptions<z.ZodType>, "schema"> = {},
+  ): Promise<Response> {
     const send = () => {
       const headers: Record<string, string> = { accept: "application/json" };
-      if (body !== undefined) headers["content-type"] = "application/json";
+      if (rawBody !== undefined && contentType) headers["content-type"] = contentType;
+      else if (body !== undefined) headers["content-type"] = "application/json";
       if (auth && accessToken) headers.authorization = `Bearer ${accessToken}`;
+      const payload = rawBody ?? (body === undefined ? undefined : JSON.stringify(body));
       return doFetch(path, {
         method,
         headers,
         credentials: "same-origin",
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        ...(payload === undefined ? {} : { body: payload }),
         ...(signal ? { signal } : {}),
       });
     };
@@ -86,6 +102,14 @@ export function createApiClient(options: ApiClientOptions) {
       const session = await refresh();
       if (session) res = await send();
     }
+    return res;
+  }
+
+  async function request<S extends z.ZodType = z.ZodUnknown>(
+    path: string,
+    { schema, ...options }: RequestOptions<S> = {},
+  ): Promise<z.infer<S>> {
+    const res = await fetchRaw(path, options);
     if (!res.ok) throw await ApiError.fromResponse(res);
     if (res.status === 204 || !schema) return undefined as z.infer<S>;
     return schema.parse(await res.json()) as z.infer<S>;
@@ -101,6 +125,7 @@ export function createApiClient(options: ApiClientOptions) {
 
   return {
     request,
+    fetchRaw,
     refresh,
     signOut,
     /** Call with the response of a sign-in endpoint. */

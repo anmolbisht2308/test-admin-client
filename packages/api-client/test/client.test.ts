@@ -121,3 +121,21 @@ describe("fieldErrors", () => {
     expect(fieldErrors("nope")).toEqual({});
   });
 });
+
+describe("raw bodies", () => {
+  it("sends files as-is with their content type", async () => {
+    let seen: RequestInit | undefined;
+    const { client } = setup((_url, init) => {
+      seen = init;
+      return json(200, { ok: true });
+    });
+    const file = new Blob(["a,b\n1,2"], { type: "text/csv" });
+    await client.request("/api/admin/questions/import", {
+      method: "POST",
+      rawBody: file,
+      contentType: "text/csv",
+    });
+    expect((seen?.headers as Record<string, string>)["content-type"]).toBe("text/csv");
+    expect(seen?.body).toBe(file);
+  });
+});

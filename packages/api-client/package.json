@@ -13,7 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.2.0/mockprep-types-0.2.0.tgz",
+    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.3.0/mockprep-types-0.3.0.tgz",
     "zod": "^4.6.5"
   },
   "peerDependencies": {

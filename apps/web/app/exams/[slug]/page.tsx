@@ -1,8 +1,10 @@
 import {
   EXAM_FAMILY_LABELS,
+  TEST_TYPE_LABELS,
   templateMaxMarks,
   templateQuestionCount,
   type ExamTemplate,
+  type PublicTestCard,
 } from "@mockprep/types";
 import {
   Badge,
@@ -22,7 +24,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { formatMarks, formatMinutes, getExamDetail } from "@/lib/exams";
+import { formatMarks, formatMinutes, getExamDetail, getExamTests } from "@/lib/exams";
 
 export const revalidate = 60;
 
@@ -129,8 +131,33 @@ function PatternTable({ template }: { template: ExamTemplate }) {
   );
 }
 
+function TestCard({ test }: { test: PublicTestCard }) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline">{TEST_TYPE_LABELS[test.type]}</Badge>
+          {test.isFree && <Badge variant="success">Free</Badge>}
+        </div>
+        <CardTitle className="mt-2 text-base">{test.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
+          {test.questionCount} questions · {formatMinutes(test.totalTimeSec)}
+          {test.sectionCount > 1 ? ` · ${test.sectionCount} sections` : ""}
+        </p>
+        {/* TODO(phase 5): start the attempt. */}
+        <Button disabled variant="outline">
+          Attempts open soon
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default async function ExamPage({ params }: Props) {
-  const detail = await load((await params).slug);
+  const { slug } = await params;
+  const [detail, tests] = await Promise.all([load(slug), getExamTests(slug)]);
   if (!detail) notFound();
   const { exam, templates } = detail;
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -199,13 +226,24 @@ export default async function ExamPage({ params }: Props) {
         <h2 id="mocks" className="text-lg font-semibold">
           Mock tests
         </h2>
-        {/* TODO(phase 3): published test cards. */}
-        <p className="text-sm text-muted-foreground">Mocks for {exam.shortName} are coming soon.</p>
-        <div>
-          <Button asChild>
-            <Link href="/login">Sign up free to get notified</Link>
-          </Button>
-        </div>
+        {tests.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {tests.map((t) => (
+              <TestCard key={t.id} test={t} />
+            ))}
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Mocks for {exam.shortName} are coming soon.
+            </p>
+            <div>
+              <Button asChild>
+                <Link href="/login">Sign up free to get notified</Link>
+              </Button>
+            </div>
+          </>
+        )}
       </section>
     </article>
   );

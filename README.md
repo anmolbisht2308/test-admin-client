@@ -63,8 +63,16 @@ pnpm dev
 1. Sign in with `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` from the server's `.env`.
 2. The first sign-in shows a QR code. Scan it with an authenticator app and enter the 6-digit
    code.
-3. Next come exams, exam templates, the taxonomy tree and the status page (health chips +
-   QuestionRenderer demo).
+3. The sidebar has:
+   - **Tests**: create a test from an exam template, "Fill all sections" by rule, preview as
+     student, publish.
+   - **Question bank**: search and filter, bulk tag/delete, duplicates, the editor with a live
+     student view, and **Import Excel** (download the template, check the file, import).
+   - **Exams**, **Exam templates** and **Taxonomy**.
+   - **Status**: health chips and the QuestionRenderer demo.
+
+Published tests show as cards on the student exam page (`/exams/<slug>`). Taking a test arrives
+in Phase 5.
 
 | Command          | What it does                                            |
 | ---------------- | ------------------------------------------------------- |

@@ -3,6 +3,7 @@ import {
   examDetailResponseSchema,
   examFamilySchema,
   examListResponseSchema,
+  publicTestListResponseSchema,
   type Exam,
   type ExamFamily,
 } from "@mockprep/types";
@@ -21,6 +22,22 @@ export async function getPublishedExams(): Promise<Exam[] | null> {
 
 export const getExamDetail = (slug: string) =>
   serverGet(`/api/exams/${encodeURIComponent(slug)}`, examDetailResponseSchema);
+
+/** Published tests for an exam page. Empty on errors so the page still renders. */
+export async function getExamTests(slug: string) {
+  try {
+    return (
+      (
+        await serverGet(
+          `/api/exams/${encodeURIComponent(slug)}/tests`,
+          publicTestListResponseSchema,
+        )
+      )?.tests ?? []
+    );
+  } catch {
+    return [];
+  }
+}
 
 export function groupByFamily(exams: Exam[]) {
   return FAMILY_ORDER.map((family) => ({

@@ -2,13 +2,25 @@
 
 import { useAuth } from "@mockprep/api-client";
 import { Button, ThemeToggle, cn } from "@mockprep/ui";
-import { BookOpen, FileSliders, Activity, ListTree, LogOut, Menu, X } from "lucide-react";
+import {
+  Activity,
+  BookOpen,
+  ClipboardList,
+  FileQuestion,
+  FileSliders,
+  ListTree,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { ROLE_LABELS } from "@/lib/roles";
 
 const NAV = [
+  { href: "/tests", label: "Tests", icon: ClipboardList },
+  { href: "/questions", label: "Question bank", icon: FileQuestion },
   { href: "/exams", label: "Exams", icon: BookOpen },
   { href: "/templates", label: "Exam templates", icon: FileSliders },
   { href: "/taxonomy", label: "Taxonomy", icon: ListTree },
