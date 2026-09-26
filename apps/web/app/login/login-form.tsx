@@ -159,48 +159,57 @@ export function LoginForm() {
     );
   }
 
+  const phoneLogin = publicEnv.NEXT_PUBLIC_PHONE_LOGIN;
+  const googleId = publicEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
   return (
     <div className="flex flex-col gap-6">
-      <form
-        className="flex flex-col gap-4"
-        noValidate
-        onSubmit={(e) => {
-          e.preventDefault();
-          void sendCode(phone);
-        }}
-      >
-        <Field label="Mobile number" htmlFor="phone" hint="We'll send a one-time code by SMS.">
-          <div className="flex">
-            <span className="inline-flex h-11 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
-              +91
-            </span>
-            <Input
-              id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              inputMode="tel"
-              autoComplete="tel-national"
-              placeholder="98765 43210"
-              className="rounded-l-none"
-              autoFocus
-              aria-invalid={error ? true : undefined}
-            />
-          </div>
-        </Field>
-        {error && <Alert>{error}</Alert>}
-        <Button type="submit" size="lg" disabled={busy || resendIn > 0}>
-          {busy ? "Sending…" : resendIn > 0 ? `Try again in ${resendIn}s` : "Send code"}
-        </Button>
-      </form>
-      {publicEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+      {!phoneLogin && !googleId && (
+        <Alert>Sign-in is not configured yet. Please try again later.</Alert>
+      )}
+      {!phoneLogin && error && <Alert>{error}</Alert>}
+      {phoneLogin && (
+        <form
+          className="flex flex-col gap-4"
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            void sendCode(phone);
+          }}
+        >
+          <Field label="Mobile number" htmlFor="phone" hint="We'll send a one-time code by SMS.">
+            <div className="flex">
+              <span className="inline-flex h-11 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+                +91
+              </span>
+              <Input
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                inputMode="tel"
+                autoComplete="tel-national"
+                placeholder="98765 43210"
+                className="rounded-l-none"
+                autoFocus
+                aria-invalid={error ? true : undefined}
+              />
+            </div>
+          </Field>
+          {error && <Alert>{error}</Alert>}
+          <Button type="submit" size="lg" disabled={busy || resendIn > 0}>
+            {busy ? "Sending…" : resendIn > 0 ? `Try again in ${resendIn}s` : "Send code"}
+          </Button>
+        </form>
+      )}
+      {googleId && (
         <>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
-          </div>
-          <GoogleSignIn
-            clientId={publicEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
-            onCredential={(t) => void google(t)}
-          />
+          {phoneLogin && (
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="h-px flex-1 bg-border" /> or{" "}
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          )}
+          <GoogleSignIn clientId={googleId} onCredential={(t) => void google(t)} />
         </>
       )}
     </div>

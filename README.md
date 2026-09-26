@@ -96,7 +96,9 @@ Always render question content with this component:
 
 ## Deploy to Vercel
 
-Create **two Vercel projects** from this same repo, one per app.
+Create **two Vercel projects** from this same repo, one per app. The free **Hobby** plan is fine
+while testing. Vercel's Hobby plan is for non-commercial use, so move both projects to **Pro**
+before the site starts earning.
 
 1. On Vercel, click **Add New → Project** and import `test-admin-client`.
 2. Set **Root Directory** to `apps/web`. The framework preset is detected as Next.js. Vercel detects
@@ -106,11 +108,12 @@ Create **two Vercel projects** from this same repo, one per app.
 4. Deploy. Then repeat steps 1 to 4 with **Root Directory** `apps/admin` for the admin project.
 5. Open `/status` on both deployments. All three chips should be green.
 
-| Variable                       | web | admin | Value                                                                                         |
-| ------------------------------ | :-: | :---: | --------------------------------------------------------------------------------------------- |
-| `API_ORIGIN`                   |  ✓  |   ✓   | Render api URL, e.g. `https://mockprep-api.onrender.com`, with no trailing slash. Server-only |
-| `NEXT_PUBLIC_SITE_URL`         |  ✓  |       | public URL of the student site (canonical links, JSON-LD)                                     |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |  ✓  |       | optional: Google OAuth web client id. It must also be in the api's `GOOGLE_CLIENT_IDS`        |
+| Variable                       | web | admin | Value                                                                                                                                    |
+| ------------------------------ | :-: | :---: | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_ORIGIN`                   |  ✓  |   ✓   | Render api URL, e.g. `https://mockprep-api.onrender.com`, with no trailing slash. Server-only                                            |
+| `NEXT_PUBLIC_SITE_URL`         |  ✓  |       | public URL of the student site (canonical links, JSON-LD)                                                                                |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |  ✓  |       | Google OAuth web client id; it must also be in the api's `GOOGLE_CLIENT_IDS`. **Required on the free setup**: it is how students sign in |
+| `NEXT_PUBLIC_PHONE_LOGIN`      |  ✓  |       | `false` on the free setup (no SMS), which hides phone OTP and shows only Google sign-in. `true` (default) once MSG91 is configured       |
 
 `API_ORIGIN` is read at build time for the rewrites, so redeploy after you change it. The build
 fails with a clear message if it is missing. Nothing secret may ever go in a `NEXT_PUBLIC_*`
