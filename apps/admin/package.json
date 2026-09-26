@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@mockprep/api-client": "workspace:*",
-    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz",
+    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.7.0/mockprep-types-0.7.0.tgz",
     "@mockprep/ui": "workspace:*",
     "lucide-react": "^1.48.0",
     "next": "15.5.26",

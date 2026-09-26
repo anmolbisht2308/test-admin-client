@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { z } from "zod";
 import { PageHeader } from "@/components/page-header";
 import { QuestionEditor } from "@/components/question-editor";
+import { QuestionStatsCard } from "@/components/question-stats";
 import { formatIst } from "@/lib/format";
 import { useApiQuery } from "@/lib/use-api-query";
 
@@ -48,6 +49,7 @@ function EditQuestion() {
       )}
       {error && <Alert>{error}</Alert>}
       {data && <QuestionEditor key={data.question.id} question={data.question} />}
+      {data && <QuestionStatsCard questionId={data.question.id} correct={data.question.correct} />}
       {data && data.versions.length > 0 && (
         <section className="mt-8 flex flex-col gap-2 text-sm">
           <h2 className="font-medium">Versions and usage</h2>

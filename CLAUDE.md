@@ -51,16 +51,17 @@ packages/
               refresh-once-and-retry on 401, refresh serialised across tabs via Web Locks; rawBody for
               files, fetchRaw for downloads), AuthProvider/useAuth, ApiError, errorMessage(), fieldErrors()
   config/     @mockprep/config — shared tsconfig (base, nextjs, react-library), eslint, prettier
-web:   app/(site)/ (header layout: /, /login, /onboarding, /home, /exams, /exams/[slug] ISR 60 s,
-       /results/[attemptId], /status); app/test/ full screen (start/[testId] instructions,
-       [attemptId] CBT screen). components/test/ (exam-screen, palette, question-view + keypad,
-       timer, skins, submit-dialog, use-answer-sync). lib/test-engine/ (engine.ts pure CBT rules,
-       store.ts Zustand + IndexedDB mirror, idb.ts), lib/ (env, server-api, exams, guards)
-admin: app/login, app/(panel)/* behind AdminShell (sidebar + guard): tests (list, new, [id] builder,
-       [id]/preview, [id]/review), uploads (list, new, [id] progress), questions (bank, new, [id]
-       editor + versions, import, duplicates), exams, templates, taxonomy, status. components/
-       (question-editor, question-preview, test-builder, review-screen, forms), lib/ (roles,
-       use-api-query, format (snippet, IST helpers), upload (figures + paper files), review)
+web:   app/(site)/ (header layout: /, /login, /onboarding, /home dashboard, /exams, /exams/[slug] ISR
+       60 s, /results/[attemptId] (+ /solutions), /revision, /status); app/test/ full screen
+       (start/[testId] instructions, [attemptId] CBT screen). components/test/ (exam-screen,
+       palette, question-view + keypad, timer, skins, submit-dialog, use-answer-sync),
+       components/results/ (analysis-charts: Recharts, lazy; report-dialog). lib/test-engine/
+       (engine.ts pure CBT rules, store.ts Zustand + IndexedDB, idb.ts), lib/ (results, env, …)
+admin: app/login, app/(panel)/* behind AdminShell (sidebar + guard): tests (list, new, [id] builder
+       + cut-offs, [id]/preview, [id]/review, [id]/answer-key), uploads, questions (bank, new,
+       [id] editor + versions + stats, import, duplicates), reports, exams, templates, taxonomy,
+       status. components/ (question-editor, question-preview, question-stats, test-builder,
+       cutoffs-card, review-screen), lib/ (roles, use-api-query, format, upload, review)
 ```
 
 **Api access:** browsers call same-origin `/api/*`; `next.config.ts` rewrites to `API_ORIGIN`
@@ -126,6 +127,7 @@ Ports: web 3000, admin 3001, api 4000.
 - Mobile first. The student test screen must work on a 360px-wide Android on slow 3G:
   small JS bundles, no heavy libraries on the test route, touch targets >= 44px.
 - The client never has correct answers or solutions before submit; don't build UI that expects them.
+- Charts: Recharts, only via `next/dynamic` on results/home pages (never on the test route).
 - Test screen: selection saved only by Save & Next / Mark for Review; server deadline is truth
   (skew-corrected); answers mirrored to IndexedDB, synced every 5 s + on section change; skins
   from `template.skin` (components/test/skins.ts). Put CBT rules in engine.ts (unit-tested).
@@ -174,12 +176,12 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 | 3   | Question bank + test builder              | done   |
 | 4   | PDF → test pipeline                       | done   |
 | 5   | Test engine                               | done   |
-| 6   | Results + analysis                        |        |
+| 6   | Results + analysis                        | done   |
 | 7   | Payments                                  |        |
 | 8   | Live tests + notifications                |        |
 | 9   | More exams + hardening + launch           |        |
 
-**Current phase: 5 (complete) — next: Phase 6.**
+**Current phase: 6 (complete) — next: Phase 7.**
 
 ## 9. Change log
 
@@ -191,3 +193,6 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 - Phase 5: web test engine (instructions → full-screen CBT, skins, palette, locked section timers,
   keypad, offline + resume, auto-submit), basic result page, Start/Resume on exam cards. Dep:
   zustand. Types-v0.6.1.
+- Phase 6: result page (score/rank/percentile, advice, charts, cut-off), solutions reader
+  (filters, bookmark, report), practice re-attempt, revision list, dashboard trend; admin
+  reports queue, question stats, cut-offs, answer key + re-score. Dep: recharts. Types-v0.7.0.

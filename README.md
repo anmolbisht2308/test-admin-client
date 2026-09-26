@@ -94,8 +94,25 @@ Published tests show as cards on the student exam page (`/exams/<slug>`) with **
 - **Answers are kept safe.** They are kept in IndexedDB and sent every 5 s. The badge shows
   Saved / Saving / Offline. A refresh or another device resumes on the same question with the
   server's time.
-- **Submitting.** Submit shows a summary per section. At zero the test submits by itself. The
-  result page shows score, correct/wrong/skipped, accuracy and time.
+- **Submitting.** Submit shows a summary per section. At zero the test submits by itself.
+
+**After the test** (`/results/<attemptId>`):
+
+- **The result** leads with score, rank and percentile (first attempts only). Then comes one
+  sentence of advice, strong and weak topics, the cut-off check, and charts (Recharts, loaded only
+  on this page): sections, you vs topper vs average, a topic heatmap, and time vs accuracy.
+- **Solutions** (`…/solutions`) show one question at a time with filters (all / wrong / skipped /
+  marked), your answer vs the key, the explanation, and the % of students who got it right. You
+  can **Save for revision** or **Report an error**.
+- **Re-attempt wrong questions** makes a private practice test. `/revision` is the saved list.
+  `/home` shows your tests and the score trend.
+
+**Admin:**
+
+- **Reports** is the queue of students' error reports.
+- The question page shows nightly stats.
+- A test's page has **Expected cut-offs** and **Change answer key & re-score**. Re-scoring updates
+  every attempt and every rank.
 
 | Command          | What it does                                            |
 | ---------------- | ------------------------------------------------------- |
