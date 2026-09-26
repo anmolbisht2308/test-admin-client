@@ -4,7 +4,8 @@
     "API_ORIGIN",
     "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
     "NEXT_PUBLIC_SITE_URL",
-    "NEXT_PUBLIC_PHONE_LOGIN"
+    "NEXT_PUBLIC_PHONE_LOGIN",
+    "NEXT_PUBLIC_EMAIL_LOGIN"
   ],
   "tasks": {
     "build": {

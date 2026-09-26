@@ -5,15 +5,34 @@ import {
   authSessionResponseSchema,
   indianPhoneSchema,
   otpSendResponseSchema,
+  studentEmailSchema,
   type AuthSessionResponse,
 } from "@mockprep/types";
-import { Alert, Button, Field, Input } from "@mockprep/ui";
+import { Alert, Button, Field, Input, cn } from "@mockprep/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { publicEnv } from "@/lib/env";
 
-type Step = { name: "phone" } | { name: "code"; phone: string; display: string };
+type Channel = "phone" | "email";
+type Step = { name: "enter" } | { name: "code"; channel: Channel; target: string; display: string };
+
+const CHANNEL = {
+  phone: {
+    send: "/api/auth/otp/send",
+    verify: "/api/auth/otp/verify",
+    body: (target: string) => ({ phone: target }),
+    parse: (value: string) => indianPhoneSchema.safeParse(value),
+    display: (target: string) => target.replace(/^\+91(\d{5})(\d{5})$/, "+91 $1 $2"),
+  },
+  email: {
+    send: "/api/auth/email/send",
+    verify: "/api/auth/email/verify",
+    body: (target: string) => ({ email: target }),
+    parse: (value: string) => studentEmailSchema.safeParse(value),
+    display: (target: string) => target,
+  },
+} as const;
 
 /** Only allow same-site relative redirects after sign-in. */
 function safeNext(value: string | null) {
@@ -24,8 +43,19 @@ export function LoginForm() {
   const { api, state } = useAuth();
   const router = useRouter();
   const next = safeNext(useSearchParams().get("next"));
-  const [step, setStep] = useState<Step>({ name: "phone" });
+
+  const phoneLogin = publicEnv.NEXT_PUBLIC_PHONE_LOGIN;
+  const emailLogin = publicEnv.NEXT_PUBLIC_EMAIL_LOGIN;
+  const googleId = publicEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const channels = [
+    ...(phoneLogin ? (["phone"] as const) : []),
+    ...(emailLogin ? (["email"] as const) : []),
+  ];
+
+  const [channel, setChannel] = useState<Channel>(channels[0] ?? "email");
+  const [step, setStep] = useState<Step>({ name: "enter" });
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -47,25 +77,26 @@ export function LoginForm() {
     router.replace(session.user.onboarded ? next : "/onboarding");
   };
 
-  async function sendCode(target: string) {
+  async function sendCode(via: Channel, value: string) {
     setError(null);
-    const parsed = indianPhoneSchema.safeParse(target);
+    const parsed = CHANNEL[via].parse(value);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Enter a valid mobile number");
+      setError(parsed.error.issues[0]?.message ?? "Check what you entered");
       return;
     }
     setBusy(true);
     try {
-      const res = await api.request("/api/auth/otp/send", {
+      const res = await api.request(CHANNEL[via].send, {
         method: "POST",
         auth: false,
-        body: { phone: parsed.data },
+        body: CHANNEL[via].body(parsed.data),
         schema: otpSendResponseSchema,
       });
       setStep({
         name: "code",
-        phone: parsed.data,
-        display: parsed.data.replace(/^\+91(\d{5})(\d{5})$/, "+91 $1 $2"),
+        channel: via,
+        target: parsed.data,
+        display: CHANNEL[via].display(parsed.data),
       });
       setResendIn(res.resendInSec);
       setCode("");
@@ -87,10 +118,10 @@ export function LoginForm() {
     setBusy(true);
     try {
       finish(
-        await api.request("/api/auth/otp/verify", {
+        await api.request(CHANNEL[step.channel].verify, {
           method: "POST",
           auth: false,
-          body: { phone: step.phone, code },
+          body: { ...CHANNEL[step.channel].body(step.target), code },
           schema: authSessionResponseSchema,
         }),
       );
@@ -120,11 +151,13 @@ export function LoginForm() {
     return (
       <form onSubmit={verify} className="flex flex-col gap-4" noValidate>
         <p className="text-sm">
-          Enter the 6-digit code sent to <span className="font-medium">{step.display}</span>.{" "}
+          Enter the 6-digit code sent to{" "}
+          <span className="font-medium break-all">{step.display}</span>
+          {step.channel === "email" && " (check spam too)"}.{" "}
           <button
             type="button"
             className="text-primary underline-offset-4 hover:underline"
-            onClick={() => setStep({ name: "phone" })}
+            onClick={() => setStep({ name: "enter" })}
           >
             Change
           </button>
@@ -151,7 +184,7 @@ export function LoginForm() {
           type="button"
           variant="ghost"
           disabled={busy || resendIn > 0}
-          onClick={() => void sendCode(step.phone)}
+          onClick={() => void sendCode(step.channel, step.target)}
         >
           {resendIn > 0 ? `Resend code in ${resendIn}s` : "Resend code"}
         </Button>
@@ -159,51 +192,95 @@ export function LoginForm() {
     );
   }
 
-  const phoneLogin = publicEnv.NEXT_PUBLIC_PHONE_LOGIN;
-  const googleId = publicEnv.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const active = channels.includes(channel) ? channel : channels[0];
 
   return (
     <div className="flex flex-col gap-6">
-      {!phoneLogin && !googleId && (
+      {!active && !googleId && (
         <Alert>Sign-in is not configured yet. Please try again later.</Alert>
       )}
-      {!phoneLogin && error && <Alert>{error}</Alert>}
-      {phoneLogin && (
+      {!active && error && <Alert>{error}</Alert>}
+
+      {channels.length > 1 && (
+        <div
+          role="tablist"
+          aria-label="Sign in with"
+          className="grid grid-cols-2 rounded-md border p-1"
+        >
+          {channels.map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="tab"
+              aria-selected={active === c}
+              onClick={() => {
+                setChannel(c);
+                setError(null);
+              }}
+              className={cn(
+                "h-10 rounded text-sm font-medium",
+                active === c ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+              )}
+            >
+              {c === "phone" ? "Mobile" : "Email"}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {active && (
         <form
           className="flex flex-col gap-4"
           noValidate
           onSubmit={(e) => {
             e.preventDefault();
-            void sendCode(phone);
+            void sendCode(active, active === "phone" ? phone : email);
           }}
         >
-          <Field label="Mobile number" htmlFor="phone" hint="We'll send a one-time code by SMS.">
-            <div className="flex">
-              <span className="inline-flex h-11 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
-                +91
-              </span>
+          {active === "phone" ? (
+            <Field label="Mobile number" htmlFor="phone" hint="We'll send a one-time code by SMS.">
+              <div className="flex">
+                <span className="inline-flex h-11 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+                  +91
+                </span>
+                <Input
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  inputMode="tel"
+                  autoComplete="tel-national"
+                  placeholder="98765 43210"
+                  className="rounded-l-none"
+                  autoFocus
+                  aria-invalid={error ? true : undefined}
+                />
+              </div>
+            </Field>
+          ) : (
+            <Field label="Email address" htmlFor="email" hint="We'll email you a one-time code.">
               <Input
-                id="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                inputMode="tel"
-                autoComplete="tel-national"
-                placeholder="98765 43210"
-                className="rounded-l-none"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                inputMode="email"
+                autoComplete="email"
+                placeholder="you@example.com"
                 autoFocus
                 aria-invalid={error ? true : undefined}
               />
-            </div>
-          </Field>
+            </Field>
+          )}
           {error && <Alert>{error}</Alert>}
           <Button type="submit" size="lg" disabled={busy || resendIn > 0}>
             {busy ? "Sending…" : resendIn > 0 ? `Try again in ${resendIn}s` : "Send code"}
           </Button>
         </form>
       )}
+
       {googleId && (
         <>
-          {phoneLogin && (
+          {active && (
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="h-px flex-1 bg-border" /> or{" "}
               <span className="h-px flex-1 bg-border" />

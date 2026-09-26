@@ -82,8 +82,8 @@ pnpm --filter @mockprep/web <script>   # run a script in one package
 ```
 
 Env: copy `apps/*/.env.example` → `.env.local`. web: `API_ORIGIN`, `NEXT_PUBLIC_SITE_URL`,
-`NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_PHONE_LOGIN` (false on the free setup = Google-only
-login); admin: `API_ORIGIN`. Adding an env var = `lib/env.ts`
+`NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_PHONE_LOGIN` (false on the free setup),
+`NEXT_PUBLIC_EMAIL_LOGIN` (email codes, default true); admin: `API_ORIGIN`. Adding an env var = `lib/env.ts`
 (public vars referenced literally so Next inlines them) + `.env.example` + README table +
 `turbo.json` globalEnv (Turbo strips undeclared vars) + CI env.
 Ports: web 3000, admin 3001, api 4000.
@@ -190,5 +190,5 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
   view), Excel/CSV import with row report, test builder (fill all by rule, per-section fill, bank
   picker, live checks, publish/unpublish, IST scheduling), student-paper preview; web exam page
   shows published test cards (attempts in Phase 5). Types pinned to types-v0.3.0.
-- Free-tier setup: `NEXT_PUBLIC_PHONE_LOGIN=false` hides phone OTP (no paid SMS); Vercel Hobby
-  until commercial launch.
+- Free-tier setup: `NEXT_PUBLIC_PHONE_LOGIN=false` hides phone OTP (no paid SMS); email-code login
+  (Mobile/Email toggle when both on) + Google; Vercel Hobby until launch. Types → types-v0.4.0.

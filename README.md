@@ -51,9 +51,9 @@ pnpm dev
 
 **Student site: http://localhost:3000**
 
-1. Go to `/login` and enter any Indian mobile number.
-2. With `OTP_PROVIDER=console`, the api prints the code in terminal 1:
-   `DEV OTP for +91…: 123456`.
+1. Go to `/login` and enter any Indian mobile number (or switch to **Email**).
+2. In dev, the api prints the code in terminal 1: `DEV OTP for +91…: 123456` for phone, or
+   `DEV EMAIL to …: Your mockprep sign-in code is 123456` for email.
 3. Enter the code. Onboarding asks for your name, target exams and language, then you land on
    `/home`.
 4. Exam pages are at `/exams` and `/exams/<slug>`.
@@ -108,12 +108,13 @@ before the site starts earning.
 4. Deploy. Then repeat steps 1 to 4 with **Root Directory** `apps/admin` for the admin project.
 5. Open `/status` on both deployments. All three chips should be green.
 
-| Variable                       | web | admin | Value                                                                                                                                    |
-| ------------------------------ | :-: | :---: | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `API_ORIGIN`                   |  ✓  |   ✓   | Render api URL, e.g. `https://mockprep-api.onrender.com`, with no trailing slash. Server-only                                            |
-| `NEXT_PUBLIC_SITE_URL`         |  ✓  |       | public URL of the student site (canonical links, JSON-LD)                                                                                |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |  ✓  |       | Google OAuth web client id; it must also be in the api's `GOOGLE_CLIENT_IDS`. **Required on the free setup**: it is how students sign in |
-| `NEXT_PUBLIC_PHONE_LOGIN`      |  ✓  |       | `false` on the free setup (no SMS), which hides phone OTP and shows only Google sign-in. `true` (default) once MSG91 is configured       |
+| Variable                       | web | admin | Value                                                                                                                                               |
+| ------------------------------ | :-: | :---: | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_ORIGIN`                   |  ✓  |   ✓   | Render api URL, e.g. `https://mockprep-api.onrender.com`, with no trailing slash. Server-only                                                       |
+| `NEXT_PUBLIC_SITE_URL`         |  ✓  |       | public URL of the student site (canonical links, JSON-LD)                                                                                           |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |  ✓  |       | Google OAuth web client id; it must also be in the api's `GOOGLE_CLIENT_IDS`. Optional second sign-in method                                        |
+| `NEXT_PUBLIC_PHONE_LOGIN`      |  ✓  |       | `false` on the free setup (no SMS), which hides phone OTP and shows only Google sign-in. `true` (default) once MSG91 is configured                  |
+| `NEXT_PUBLIC_EMAIL_LOGIN`      |  ✓  |       | `true` (default): students can sign in with a code sent by email (the api sends it via Brevo's free plan). This is the main login on the free setup |
 
 `API_ORIGIN` is read at build time for the rewrites, so redeploy after you change it. The build
 fails with a clear message if it is missing. Nothing secret may ever go in a `NEXT_PUBLIC_*`
