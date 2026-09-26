@@ -13,12 +13,13 @@
   },
   "dependencies": {
     "@mockprep/api-client": "workspace:*",
-    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz",
+    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz",
     "@mockprep/ui": "workspace:*",
     "next": "15.5.26",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@mockprep/config": "workspace:*",

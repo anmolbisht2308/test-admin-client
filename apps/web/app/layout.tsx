@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Providers } from "@/components/providers";
-import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -28,10 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     // suppressHydrationWarning: next-themes sets the theme class before hydration.
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-dvh">
-        <Providers>
-          <SiteHeader />
-          <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

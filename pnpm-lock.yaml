@@ -27,8 +27,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-client
       '@mockprep/types':
-        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz
-        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz(zod@4.6.5)
+        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz
+        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz(zod@4.6.5)
       '@mockprep/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -82,8 +82,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-client
       '@mockprep/types':
-        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz
-        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz(zod@4.6.5)
+        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz
+        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz(zod@4.6.5)
       '@mockprep/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -99,6 +99,9 @@ importers:
       zod:
         specifier: ^4.6.5
         version: 4.6.5
+      zustand:
+        specifier: ^5.0.15
+        version: 5.0.15(@types/react@19.3.0)(react@19.3.0)
     devDependencies:
       '@mockprep/config':
         specifier: workspace:*
@@ -131,8 +134,8 @@ importers:
   packages/api-client:
     dependencies:
       '@mockprep/types':
-        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz
-        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz(zod@4.6.5)
+        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz
+        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz(zod@4.6.5)
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -195,8 +198,8 @@ importers:
   packages/ui:
     dependencies:
       '@mockprep/types':
-        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz
-        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz(zod@4.6.5)
+        specifier: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz
+        version: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz(zod@4.6.5)
       '@radix-ui/react-slot':
         specifier: ^1.3.3
         version: 1.3.3(@types/react@19.3.0)(react@19.3.0)
@@ -585,9 +588,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@mockprep/types@https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz':
-    resolution: {integrity: sha512-ma7qXZl+Hvb2lNRj1MuFN950dp9mKlSUs3FV51u0ZTdN7LbX903UEQLAN2Uny9gYJMkSk7nEYlyUPmc+U1gGcg==, tarball: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz}
-    version: 0.5.0
+  '@mockprep/types@https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz':
+    resolution: {tarball: https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz}
+    version: 0.6.1
     peerDependencies:
       zod: ^4.0.0
 
@@ -2747,6 +2750,24 @@ packages:
   zod@4.6.5:
     resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
+  zustand@5.0.15:
+    resolution: {integrity: sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
 snapshots:
 
   '@alloc/quick-lru@5.3.0': {}
@@ -3015,7 +3036,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@mockprep/types@https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.5.0/mockprep-types-0.5.0.tgz(zod@4.6.5)':
+  '@mockprep/types@https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.6.1/mockprep-types-0.6.1.tgz(zod@4.6.5)':
     dependencies:
       zod: 4.6.5
 
@@ -5247,3 +5268,8 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@4.6.5: {}
+
+  zustand@5.0.15(@types/react@19.3.0)(react@19.3.0):
+    optionalDependencies:
+      '@types/react': 19.3.0
+      react: 19.3.0

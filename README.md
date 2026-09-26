@@ -78,8 +78,24 @@ pnpm dev
    - **Exams**, **Exam templates** and **Taxonomy**.
    - **Status**: health chips and the QuestionRenderer demo.
 
-Published tests show as cards on the student exam page (`/exams/<slug>`). Taking a test arrives
-in Phase 5.
+Published tests show as cards on the student exam page (`/exams/<slug>`) with **Start test**
+(or **Resume test**).
+
+**Taking a test** (`/test/start/<testId>` → `/test/<attemptId>` → `/results/<attemptId>`):
+
+- **Instructions come first.** They are built from the test's template, and the clock starts only
+  on "I am ready to begin".
+- **The screen follows the template's skin** (`ibps`, `ssc`, `nta`, `upsc`, `generic`): timer
+  (amber under 5 min, red under 1), section tabs (locked in order for `locked_sequential`), EN/HI
+  toggle, passage side by side on wide screens, keypad for numeric answers, and the standard
+  palette colours. On phones the palette is a bottom sheet, and you swipe for next/previous.
+- **Choosing an option doesn't save it.** Like the real CBT, only **Save & Next** or **Mark for
+  Review & Next** does.
+- **Answers are kept safe.** They are kept in IndexedDB and sent every 5 s. The badge shows
+  Saved / Saving / Offline. A refresh or another device resumes on the same question with the
+  server's time.
+- **Submitting.** Submit shows a summary per section. At zero the test submits by itself. The
+  result page shows score, correct/wrong/skipped, accuracy and time.
 
 | Command          | What it does                                            |
 | ---------------- | ------------------------------------------------------- |

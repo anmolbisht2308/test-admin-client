@@ -24,6 +24,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { TestCardActions } from "@/components/test-card-actions";
 import { formatMarks, formatMinutes, getExamDetail, getExamTests } from "@/lib/exams";
 
 export const revalidate = 60;
@@ -146,10 +147,7 @@ function TestCard({ test }: { test: PublicTestCard }) {
           {test.questionCount} questions · {formatMinutes(test.totalTimeSec)}
           {test.sectionCount > 1 ? ` · ${test.sectionCount} sections` : ""}
         </p>
-        {/* TODO(phase 5): start the attempt. */}
-        <Button disabled variant="outline">
-          Attempts open soon
-        </Button>
+        <TestCardActions testId={test.id} />
       </CardContent>
     </Card>
   );

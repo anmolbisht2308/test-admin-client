@@ -51,8 +51,11 @@ packages/
               refresh-once-and-retry on 401, refresh serialised across tabs via Web Locks; rawBody for
               files, fetchRaw for downloads), AuthProvider/useAuth, ApiError, errorMessage(), fieldErrors()
   config/     @mockprep/config — shared tsconfig (base, nextjs, react-library), eslint, prettier
-web:   app/ (/, /login, /onboarding, /home, /exams, /exams/[slug] ISR 60 s, /status),
-       components/, lib/ (env.ts public env, server-api.ts, exams.ts, use-require-student.ts)
+web:   app/(site)/ (header layout: /, /login, /onboarding, /home, /exams, /exams/[slug] ISR 60 s,
+       /results/[attemptId], /status); app/test/ full screen (start/[testId] instructions,
+       [attemptId] CBT screen). components/test/ (exam-screen, palette, question-view + keypad,
+       timer, skins, submit-dialog, use-answer-sync). lib/test-engine/ (engine.ts pure CBT rules,
+       store.ts Zustand + IndexedDB mirror, idb.ts), lib/ (env, server-api, exams, guards)
 admin: app/login, app/(panel)/* behind AdminShell (sidebar + guard): tests (list, new, [id] builder,
        [id]/preview, [id]/review), uploads (list, new, [id] progress), questions (bank, new, [id]
        editor + versions, import, duplicates), exams, templates, taxonomy, status. components/
@@ -123,6 +126,9 @@ Ports: web 3000, admin 3001, api 4000.
 - Mobile first. The student test screen must work on a 360px-wide Android on slow 3G:
   small JS bundles, no heavy libraries on the test route, touch targets >= 44px.
 - The client never has correct answers or solutions before submit; don't build UI that expects them.
+- Test screen: selection saved only by Save & Next / Mark for Review; server deadline is truth
+  (skew-corrected); answers mirrored to IndexedDB, synced every 5 s + on section change; skins
+  from `template.skin` (components/test/skins.ts). Put CBT rules in engine.ts (unit-tested).
 
 **Admin UI**
 
@@ -167,33 +173,21 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 | 2   | Auth + exam catalogue + exam templates    | done   |
 | 3   | Question bank + test builder              | done   |
 | 4   | PDF → test pipeline                       | done   |
-| 5   | Test engine                               |        |
+| 5   | Test engine                               | done   |
 | 6   | Results + analysis                        |        |
 | 7   | Payments                                  |        |
 | 8   | Live tests + notifications                |        |
 | 9   | More exams + hardening + launch           |        |
 
-**Current phase: 4 (complete) — next: Phase 5.**
+**Current phase: 5 (complete) — next: Phase 6.**
 
 ## 9. Change log
 
-- Phase 0: CLAUDE.md created. Decision: two monorepos (server / client), `@mockprep` scope,
-  `@mockprep/types` owned and published by test-admin-server.
-- Phase 1: web + admin (Next 15.5, Tailwind v4, next-themes toggle, /status with health chips),
-  packages/ui (Button, Card, Badge, Input, ThemeProvider/Toggle, ServiceStatus, QuestionRenderer
-  with admin demo), CI on every push/PR, Vercel = two projects (root dirs apps/web, apps/admin).
-- Phase 2: Next rewrites proxy /api/* (first-party cookies; NEXT_PUBLIC_API_URL → API_ORIGIN),
-  packages/api-client, web login (OTP + optional Google) → onboarding → /home, /exams +
-  /exams/[slug] (ISR 60 s, metadata, JSON-LD); admin login + forced TOTP setup, sidebar shell,
-  exam/template editors (validated live with the shared Zod schemas), taxonomy tree. ui adds
-  Label, Textarea, Select (native), Field, Alert, Table. Types pinned to types-v0.2.0.
-- Phase 3: admin question bank (filters, search, bulk tag/delete, duplicates), question editor
-  (EN/HI tabs, click-to-mark-correct, numeric ranges, taxonomy tags, figure upload, live student
-  view), Excel/CSV import with row report, test builder (fill all by rule, per-section fill, bank
-  picker, live checks, publish/unpublish, IST scheduling), student-paper preview; web exam page
-  shows published test cards (attempts in Phase 5). Types pinned to types-v0.3.0.
-- Free-tier setup: `NEXT_PUBLIC_PHONE_LOGIN=false` hides phone OTP (no paid SMS); email-code login
-  (Mobile/Email toggle when both on) + Google; Vercel Hobby until launch. Types → types-v0.4.0.
-- Phase 4: admin Paper uploads (exam picker, 3 drop zones, AI/text badge), progress page (1.5 s
-  poll, steps, log, summary), full-screen review (list + student view/editor + PDF at #page=N,
-  approve all answered, publish with confirm-to-force), tests list "to review". Types → v0.5.0.
+- Phase 0–3: monorepos, Vercel ×2, packages/ui + QuestionRenderer, Next rewrites, api-client, web
+  login/onboarding/exams (ISR), admin shell + 2FA, exam/template editors, question bank, import,
+  test builder, student preview.
+- Free tier: `NEXT_PUBLIC_PHONE_LOGIN=false`, email-code login + Google; types-v0.4.0.
+- Phase 4: admin Paper uploads, progress page, keyboard review screen; types-v0.5.0.
+- Phase 5: web test engine (instructions → full-screen CBT, skins, palette, locked section timers,
+  keypad, offline + resume, auto-submit), basic result page, Start/Resume on exam cards. Dep:
+  zustand. Types-v0.6.1.
