@@ -10,13 +10,8 @@ Core differentiator: an admin uploads a question-paper PDF (+ optional answer ke
 the system creates a publish-ready test with minimal manual work (review only flagged questions).
 Content is bilingual (English + Hindi). Most students are on low-end Android phones on slow networks.
 
-Exam families:
-
-- Banking: SBI PO / Clerk, IBPS PO / Clerk
-- SSC: CGL, CHSL
-- UPSC Prelims: GS Paper I + CSAT
-- Defence: NDA, CDS
-- Engineering: JEE Main, JEE Advanced
+Exam families: Banking (SBI PO / Clerk, IBPS PO / Clerk) · SSC (CGL, CHSL) · UPSC Prelims
+(GS Paper I + CSAT) · Defence (NDA, CDS) · Engineering (JEE Main, JEE Advanced).
 
 ## 2. Two repos, one system
 
@@ -52,16 +47,20 @@ packages/
               files, fetchRaw for downloads), AuthProvider/useAuth, ApiError, errorMessage(), fieldErrors()
   config/     @mockprep/config — shared tsconfig (base, nextjs, react-library), eslint, prettier
 web:   app/(site)/ (header layout: /, /login, /onboarding, /home dashboard, /exams, /exams/[slug] ISR
-       60 s, /results/[attemptId] (+ /solutions), /revision, /status); app/test/ full screen
-       (start/[testId] instructions, [attemptId] CBT screen). components/test/ (exam-screen,
-       palette, question-view + keypad, timer, skins, submit-dialog, use-answer-sync),
+       60 s, /results/[attemptId] (+ /solutions), /revision, /pricing, /purchases, /status);
+       app/test/ full screen (start/[testId] instructions or paywall, [attemptId] CBT screen).
+       components/test/ (exam-screen, palette, question-view + keypad, timer, skins, submit-dialog,
+       use-answer-sync),
        components/results/ (analysis-charts: Recharts, lazy; report-dialog). lib/test-engine/
        (engine.ts pure CBT rules, store.ts Zustand + IndexedDB, idb.ts), lib/ (results, env, …)
+       components/payments/ (plan-grid, checkout-dialog, paywall), lib/access-store (Zustand +
+       BroadcastChannel), lib/payments (₹ format, isUnlocked), lib/referral (?ref= → onboarding)
 admin: app/login, app/(panel)/* behind AdminShell (sidebar + guard): tests (list, new, [id] builder
        + cut-offs, [id]/preview, [id]/review, [id]/answer-key), uploads, questions (bank, new,
-       [id] editor + versions + stats, import, duplicates), reports, exams, templates, taxonomy,
-       status. components/ (question-editor, question-preview, question-stats, test-builder,
-       cutoffs-card, review-screen), lib/ (roles, use-api-query, format, upload, review)
+       [id] editor + versions + stats, import, duplicates), reports, orders (+ refund), revenue,
+       plans, coupons, access (manual grants), exams, templates, taxonomy, status. components/
+       (question-editor, question-preview, question-stats, test-builder, cutoffs-card,
+       review-screen), lib/ (roles, use-api-query, format, upload, review, money, download)
 ```
 
 **Api access:** browsers call same-origin `/api/*`; `next.config.ts` rewrites to `API_ORIGIN`
@@ -131,6 +130,10 @@ Ports: web 3000, admin 3001, api 4000.
 - Test screen: selection saved only by Save & Next / Mark for Review; server deadline is truth
   (skew-corrected); answers mirrored to IndexedDB, synced every 5 s + on section change; skins
   from `template.skin` (components/test/skins.ts). Put CBT rules in engine.ts (unit-tested).
+- Payments: the client never sends an amount (server quotes). Locked = `!isUnlocked(access, test)`
+  from the shared access store; a purchase updates it in place (no reload). Razorpay checkout.js
+  loads only on Pay; `provider: "fake"` shows the dev stand-in. The api's 403 `reason: "locked"`
+  shows the paywall. Admin money inputs are rupee text → paise via `rupeesToPaise` (no floats).
 
 **Admin UI**
 
@@ -177,22 +180,18 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 | 4   | PDF → test pipeline                       | done   |
 | 5   | Test engine                               | done   |
 | 6   | Results + analysis                        | done   |
-| 7   | Payments                                  |        |
+| 7   | Payments                                  | done   |
 | 8   | Live tests + notifications                |        |
 | 9   | More exams + hardening + launch           |        |
 
-**Current phase: 6 (complete) — next: Phase 7.**
+**Current phase: 7 (complete) — next: Phase 8.**
 
 ## 9. Change log
 
-- Phase 0–3: monorepos, Vercel ×2, packages/ui + QuestionRenderer, Next rewrites, api-client, web
-  login/onboarding/exams (ISR), admin shell + 2FA, exam/template editors, question bank, import,
-  test builder, student preview.
-- Free tier: `NEXT_PUBLIC_PHONE_LOGIN=false`, email-code login + Google; types-v0.4.0.
-- Phase 4: admin Paper uploads, progress page, keyboard review screen; types-v0.5.0.
-- Phase 5: web test engine (instructions → full-screen CBT, skins, palette, locked section timers,
-  keypad, offline + resume, auto-submit), basic result page, Start/Resume on exam cards. Dep:
-  zustand. Types-v0.6.1.
-- Phase 6: result page (score/rank/percentile, advice, charts, cut-off), solutions reader
-  (filters, bookmark, report), practice re-attempt, revision list, dashboard trend; admin
-  reports queue, question stats, cut-offs, answer key + re-score. Dep: recharts. Types-v0.7.0.
+- 0–3: monorepos, Vercel ×2, ui + QuestionRenderer, rewrites, api-client, login/onboarding/exams
+  (ISR), admin shell + 2FA, editors, question bank, import, builder. Free tier: email + Google.
+  4: uploads + review screen. 5: CBT test engine, offline + resume (dep: zustand). 6: results,
+  analysis, solutions, revision, practice; admin reports, stats, cut-offs, re-score (dep: recharts).
+- Phase 7: pricing, checkout (Razorpay / fake), paywall on cards + start page, unlock without
+  reload, My purchases + invoice PDFs, referral links; admin plans, coupons, orders + refunds,
+  manual access, revenue. Types-v0.8.0.

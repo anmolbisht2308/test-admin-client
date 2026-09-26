@@ -54,6 +54,14 @@ export function StudentHome() {
         <p className="text-muted-foreground">
           Pick a mock from your exams, or review your last result.
         </p>
+        <p className="flex gap-4 text-sm">
+          <Link href="/purchases" className="text-primary hover:underline">
+            My purchases
+          </Link>
+          <Link href="/pricing" className="text-primary hover:underline">
+            Plans
+          </Link>
+        </p>
       </section>
 
       {attempts && attempts.length > 0 && (

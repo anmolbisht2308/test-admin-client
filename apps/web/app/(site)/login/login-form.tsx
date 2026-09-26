@@ -10,6 +10,7 @@ import {
 } from "@mockprep/types";
 import { Alert, Button, Field, Input, cn } from "@mockprep/ui";
 import { useRouter, useSearchParams } from "next/navigation";
+import { rememberReferral } from "@/lib/referral";
 import { useEffect, useState, type FormEvent } from "react";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { publicEnv } from "@/lib/env";
@@ -42,7 +43,10 @@ function safeNext(value: string | null) {
 export function LoginForm() {
   const { api, state } = useAuth();
   const router = useRouter();
-  const next = safeNext(useSearchParams().get("next"));
+  const params = useSearchParams();
+  const next = safeNext(params.get("next"));
+  const ref = params.get("ref");
+  useEffect(() => rememberReferral(ref), [ref]);
 
   const phoneLogin = publicEnv.NEXT_PUBLIC_PHONE_LOGIN;
   const emailLogin = publicEnv.NEXT_PUBLIC_EMAIL_LOGIN;

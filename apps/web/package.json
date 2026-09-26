@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@mockprep/api-client": "workspace:*",
-    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.7.0/mockprep-types-0.7.0.tgz",
+    "@mockprep/types": "https://github.com/anmolbisht2308/test-admin-server/releases/download/types-v0.8.0/mockprep-types-0.8.0.tgz",
     "@mockprep/ui": "workspace:*",
     "next": "15.5.26",
     "react": "^19.2.0",

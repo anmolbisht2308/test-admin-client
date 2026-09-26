@@ -11,6 +11,7 @@ import {
 } from "@mockprep/types";
 import { Alert, Button, Field, Input, cn } from "@mockprep/ui";
 import { useRouter } from "next/navigation";
+import { storedReferral } from "@/lib/referral";
 import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { useRequireStudent } from "@/lib/use-require-student";
@@ -56,7 +57,13 @@ export function OnboardingForm() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
-    const input = { name, targetExamSlugs: selected, language };
+    const referralCode = storedReferral();
+    const input = {
+      name,
+      targetExamSlugs: selected,
+      language,
+      ...(referralCode ? { referralCode } : {}),
+    };
     const parsed = onboardingInputSchema.safeParse(input);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error.issues));

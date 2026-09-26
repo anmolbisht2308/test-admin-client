@@ -134,6 +134,28 @@ Always render question content with this component:
 - It loads its libraries lazily on first use, so they stay out of every page's initial bundle.
 - Write `\$` for a literal dollar sign. Currency such as `$5 and $6` stays plain text.
 
+### Payments
+
+The api decides which provider is used (`PAYMENTS_PROVIDER` in the server repo), and the web
+app follows the order it gets back:
+
+- `razorpay`: Razorpay Checkout (`checkout.js`, loaded only when the student clicks Pay). On
+  success the app calls `/api/payments/verify`, and the plan unlocks at once. If verify can't get
+  through, the app polls the order, because the webhook grants access anyway.
+- `fake` (local dev): a "Test payment" panel with three choices: pay, pay and close the browser
+  (webhook only), or fail.
+- `free` (100 % coupon): nothing to pay.
+
+Paid test cards show "Unlock with a plan" (`/pricing?exam=…`). The start page shows the plans
+instead of the instructions. A purchase updates a shared access store, which other tabs also
+receive through a BroadcastChannel, so locked mocks open without a reload. `/purchases` lists
+each plan with its validity, invoice and credit note PDFs, and the student's referral link
+(`/login?ref=CODE`).
+
+Admin: **Orders** (filters, invoice PDFs, refund with a reason), **Revenue** (daily, by plan,
+coupons), **Plans**, **Coupons** (plus referral credits) and **Manual access**. Money,
+refunds and plans need the superadmin or finance role; support can see orders and grant access.
+
 ## Deploy to Vercel
 
 Create **two Vercel projects** from this same repo, one per app. The free **Hobby** plan is fine

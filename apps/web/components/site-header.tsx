@@ -22,10 +22,24 @@ export function SiteHeader() {
           <Link href="/exams" className="rounded-md px-3 py-2 hover:bg-muted">
             Exams
           </Link>
+          <Link href="/pricing" className="rounded-md px-3 py-2 hover:bg-muted">
+            Pricing
+          </Link>
           {state.status === "signed_in" && state.user.role === "student" && (
-            <Link href="/revision" className="hidden rounded-md px-3 py-2 hover:bg-muted sm:inline">
-              Revision
-            </Link>
+            <>
+              <Link
+                href="/revision"
+                className="hidden rounded-md px-3 py-2 hover:bg-muted sm:inline"
+              >
+                Revision
+              </Link>
+              <Link
+                href="/purchases"
+                className="hidden rounded-md px-3 py-2 hover:bg-muted sm:inline"
+              >
+                Purchases
+              </Link>
+            </>
           )}
           {state.status === "signed_in" ? (
             <Button

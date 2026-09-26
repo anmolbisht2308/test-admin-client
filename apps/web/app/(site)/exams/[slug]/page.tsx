@@ -132,13 +132,17 @@ function PatternTable({ template }: { template: ExamTemplate }) {
   );
 }
 
-function TestCard({ test }: { test: PublicTestCard }) {
+function TestCard({ test, examKey }: { test: PublicTestCard; examKey: string }) {
   return (
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{TEST_TYPE_LABELS[test.type]}</Badge>
-          {test.isFree && <Badge variant="success">Free</Badge>}
+          {test.isFree ? (
+            <Badge variant="success">Free</Badge>
+          ) : (
+            <Badge variant="secondary">Paid</Badge>
+          )}
         </div>
         <CardTitle className="mt-2 text-base">{test.title}</CardTitle>
       </CardHeader>
@@ -147,7 +151,7 @@ function TestCard({ test }: { test: PublicTestCard }) {
           {test.questionCount} questions · {formatMinutes(test.totalTimeSec)}
           {test.sectionCount > 1 ? ` · ${test.sectionCount} sections` : ""}
         </p>
-        <TestCardActions testId={test.id} />
+        <TestCardActions testId={test.id} isFree={test.isFree} examKey={examKey} />
       </CardContent>
     </Card>
   );
@@ -227,7 +231,7 @@ export default async function ExamPage({ params }: Props) {
         {tests.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {tests.map((t) => (
-              <TestCard key={t.id} test={t} />
+              <TestCard key={t.id} test={t} examKey={exam.slug} />
             ))}
           </div>
         ) : (

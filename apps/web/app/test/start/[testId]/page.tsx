@@ -1,7 +1,9 @@
 "use client";
 
-import { errorMessage, useAuth } from "@mockprep/api-client";
+import { errorMessage, isApiError, useAuth } from "@mockprep/api-client";
 import {
+  LOCKED_REASON,
+  accessResponseSchema,
   attemptStartResponseSchema,
   myAttemptListResponseSchema,
   publicTestDetailSchema,
@@ -10,7 +12,10 @@ import {
 import { Alert } from "@mockprep/ui";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Paywall } from "@/components/payments/paywall";
 import { Instructions } from "@/components/test/instructions";
+import { useAccess, useAccessStore } from "@/lib/access-store";
+import { isUnlocked } from "@/lib/payments";
 import { useRequireStudent } from "@/lib/use-require-student";
 
 /** Instructions first; the attempt (and its clock) starts on "I am ready to begin". */
@@ -22,6 +27,9 @@ export default function StartTestPage() {
   const [test, setTest] = useState<PublicTestDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const access = useAccess();
+  // The api refused (e.g. a plan expired since access was loaded).
+  const [refused, setRefused] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -62,7 +70,18 @@ export default function StartTestPage() {
       });
       router.replace(`/test/${res.attempt.id}`);
     } catch (e) {
-      setError(errorMessage(e));
+      const details = isApiError(e) ? (e.details as { reason?: string } | undefined) : undefined;
+      if (details?.reason === LOCKED_REASON) {
+        setRefused(true);
+        // Our copy of the student's access was stale: reload it (the paywall follows it).
+        api
+          .request("/api/me/access", { schema: accessResponseSchema })
+          .then((a) => {
+            useAccessStore.getState().set(a);
+            setRefused(false);
+          })
+          .catch(() => undefined);
+      } else setError(errorMessage(e));
       setBusy(false);
     }
   }
@@ -74,11 +93,14 @@ export default function StartTestPage() {
       </div>
     );
   }
-  if (!test)
+  if (!test || (!test.isFree && access === null))
     return (
       <div className="grid min-h-dvh place-items-center text-sm text-muted-foreground">
         Loading…
       </div>
     );
+  if (refused || !isUnlocked(access, test)) {
+    return <Paywall title={test.title} examKey={test.examKey} />;
+  }
   return <Instructions test={test} busy={busy} error={error} onBegin={() => void begin()} />;
 }
