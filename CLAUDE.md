@@ -54,9 +54,10 @@ packages/
 web:   app/ (/, /login, /onboarding, /home, /exams, /exams/[slug] ISR 60 s, /status),
        components/, lib/ (env.ts public env, server-api.ts, exams.ts, use-require-student.ts)
 admin: app/login, app/(panel)/* behind AdminShell (sidebar + guard): tests (list, new, [id] builder,
-       [id]/preview), questions (bank, new, [id] editor + versions, import, duplicates), exams,
-       templates, taxonomy, status. components/ (question-editor, question-preview, test-builder,
-       forms), lib/ (roles, use-api-query, format (snippet, IST datetime helpers), upload (figures))
+       [id]/preview, [id]/review), uploads (list, new, [id] progress), questions (bank, new, [id]
+       editor + versions, import, duplicates), exams, templates, taxonomy, status. components/
+       (question-editor, question-preview, test-builder, review-screen, forms), lib/ (roles,
+       use-api-query, format (snippet, IST helpers), upload (figures + paper files), review)
 ```
 
 **Api access:** browsers call same-origin `/api/*`; `next.config.ts` rewrites to `API_ORIGIN`
@@ -129,7 +130,8 @@ Ports: web 3000, admin 3001, api 4000.
 - Question "student view" previews use `components/question-preview.tsx` (QuestionRenderer inside).
 - Figures upload via `lib/upload.ts` (presign → PUT with `credentials: "omit"` → store fileUrl).
 - Datetime inputs are entered and shown in IST (`toIstInput` / `fromIstInput`), stored as UTC.
-- Keyboard-friendly for high-volume work (review screens get shortcuts).
+- Keyboard-friendly for high-volume work. Review screen: J/K, A–E/1–5, Enter approve & next,
+  Ctrl+S, P (PDF). Changing an answer sets `answerSource: "manual"` (clears the AI flag).
 
 **Security**
 
@@ -164,14 +166,14 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
 | 1   | Setup: monorepos, CI/CD, deploys, /health | done   |
 | 2   | Auth + exam catalogue + exam templates    | done   |
 | 3   | Question bank + test builder              | done   |
-| 4   | PDF → test pipeline                       |        |
+| 4   | PDF → test pipeline                       | done   |
 | 5   | Test engine                               |        |
 | 6   | Results + analysis                        |        |
 | 7   | Payments                                  |        |
 | 8   | Live tests + notifications                |        |
 | 9   | More exams + hardening + launch           |        |
 
-**Current phase: 3 (complete) — next: Phase 4.**
+**Current phase: 4 (complete) — next: Phase 5.**
 
 ## 9. Change log
 
@@ -192,3 +194,6 @@ Build order; each phase ends deployable and clickable. Start each in a fresh ses
   shows published test cards (attempts in Phase 5). Types pinned to types-v0.3.0.
 - Free-tier setup: `NEXT_PUBLIC_PHONE_LOGIN=false` hides phone OTP (no paid SMS); email-code login
   (Mobile/Email toggle when both on) + Google; Vercel Hobby until launch. Types → types-v0.4.0.
+- Phase 4: admin Paper uploads (exam picker, 3 drop zones, AI/text badge), progress page (1.5 s
+  poll, steps, log, summary), full-screen review (list + student view/editor + PDF at #page=N,
+  approve all answered, publish with confirm-to-force), tests list "to review". Types → v0.5.0.

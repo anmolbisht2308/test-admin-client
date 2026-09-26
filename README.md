@@ -68,6 +68,13 @@ pnpm dev
      student, publish.
    - **Question bank**: search and filter, bulk tag/delete, duplicates, the editor with a live
      student view, and **Import Excel** (download the template, check the file, import).
+   - **Paper uploads**: upload a question-paper PDF (+ answer key, solutions) and get a draft
+     test. The progress page shows each step. **Review** opens a full-screen screen with the
+     flagged questions, a student view you can click to set the answer, an editor and the
+     original PDF at the question's page. Keys: `J`/`K` next/previous, `A`–`E` or `1`–`5` set the
+     answer, `Enter` approve and next, `Ctrl+S` save, `P` show/hide the PDF. Try it with
+     `sbi-paper.pdf` + `sbi-key.pdf` from the server repo's `apps/worker/test/fixtures`. How the
+     pipeline works (and the free Gemini key for scanned papers) is in the server README.
    - **Exams**, **Exam templates** and **Taxonomy**.
    - **Status**: health chips and the QuestionRenderer demo.
 

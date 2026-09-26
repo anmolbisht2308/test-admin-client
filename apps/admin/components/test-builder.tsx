@@ -27,7 +27,17 @@ import {
   Select,
   cn,
 } from "@mockprep/ui";
-import { ArrowDown, ArrowUp, Eye, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Eye,
+  ListChecks,
+  Plus,
+  Search,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -293,6 +303,13 @@ export function TestBuilder({ initial }: { initial: AdminTestResponse }) {
                   : "Fill every section to its question count."}
             </p>
           </div>
+          {test.uploadId && (
+            <Button asChild variant="outline">
+              <Link href={`/tests/${test.id}/review`}>
+                <ListChecks /> Review
+              </Link>
+            </Button>
+          )}
           <Button asChild variant="outline">
             <Link href={`/tests/${test.id}/preview`}>
               <Eye /> Preview as student

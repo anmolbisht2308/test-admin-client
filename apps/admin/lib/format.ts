@@ -35,3 +35,12 @@ export const formatIst = (iso: string | null) =>
         timeStyle: "short",
       })
     : "–";
+
+/** "SBI_PO_2023-prelims.pdf" → "SBI PO 2023 prelims" */
+export const titleFromFilename = (name: string) =>
+  name
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_\-.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);

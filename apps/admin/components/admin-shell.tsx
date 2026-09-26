@@ -11,6 +11,7 @@ import {
   ListTree,
   LogOut,
   Menu,
+  Upload,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { ROLE_LABELS } from "@/lib/roles";
 
 const NAV = [
   { href: "/tests", label: "Tests", icon: ClipboardList },
+  { href: "/uploads", label: "Paper uploads", icon: Upload },
   { href: "/questions", label: "Question bank", icon: FileQuestion },
   { href: "/exams", label: "Exams", icon: BookOpen },
   { href: "/templates", label: "Exam templates", icon: FileSliders },

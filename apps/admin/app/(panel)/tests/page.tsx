@@ -17,7 +17,7 @@ export default function TestsPage() {
     <>
       <PageHeader
         title="Tests"
-        description="Build tests from the question bank. Published tests appear on the exam page."
+        description="Build tests from the question bank or upload a paper. Published tests appear on the exam page."
         action={
           canEditContent(state.user?.role) && (
             <Button asChild>
@@ -36,6 +36,7 @@ export default function TestsPage() {
               <TH>Test</TH>
               <TH>Exam</TH>
               <TH className="text-right">Questions</TH>
+              <TH className="text-right">To review</TH>
               <TH>Status</TH>
               <TH>Updated</TH>
             </TR>
@@ -60,6 +61,25 @@ export default function TestsPage() {
                 >
                   {t.questionCount}/{t.expectedCount}
                 </TD>
+                <TD className="text-right tabular-nums">
+                  {t.toReview > 0 ? (
+                    <Link
+                      href={`/tests/${t.id}/review`}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {t.toReview}
+                    </Link>
+                  ) : t.uploadId ? (
+                    <Link
+                      href={`/tests/${t.id}/review`}
+                      className="text-muted-foreground hover:underline"
+                    >
+                      0
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">–</span>
+                  )}
+                </TD>
                 <TD>
                   <Badge variant={t.status === "published" ? "success" : "secondary"}>
                     {t.status}
@@ -79,14 +99,14 @@ export default function TestsPage() {
             ))}
             {data?.tests.length === 0 && (
               <TR>
-                <TD colSpan={5} className="py-8 text-center text-muted-foreground">
+                <TD colSpan={6} className="py-8 text-center text-muted-foreground">
                   No tests yet.
                 </TD>
               </TR>
             )}
             {!data && !error && (
               <TR>
-                <TD colSpan={5} className="py-8 text-center text-muted-foreground">
+                <TD colSpan={6} className="py-8 text-center text-muted-foreground">
                   Loading…
                 </TD>
               </TR>

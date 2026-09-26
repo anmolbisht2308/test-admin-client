@@ -147,9 +147,14 @@ export function QuestionEditor({ question }: { question?: Question }) {
           correct: has
             ? current.correct.filter((c) => c !== index)
             : [...current.correct, index].sort(),
+          answerSource: "manual",
         };
       }
-      return { ...current, correct: current.correct[0] === index ? [] : [index] };
+      return {
+        ...current,
+        correct: current.correct[0] === index ? [] : [index],
+        answerSource: "manual",
+      };
     });
   }
 
@@ -363,7 +368,9 @@ export function QuestionEditor({ question }: { question?: Question }) {
                     type="number"
                     step="any"
                     value={d.numMin}
-                    onChange={(e) => set("numMin", e.target.value)}
+                    onChange={(e) =>
+                      setD((c) => ({ ...c, numMin: e.target.value, answerSource: "manual" }))
+                    }
                   />
                 </Field>
                 <Field
@@ -377,7 +384,9 @@ export function QuestionEditor({ question }: { question?: Question }) {
                     type="number"
                     step="any"
                     value={d.numMax}
-                    onChange={(e) => set("numMax", e.target.value)}
+                    onChange={(e) =>
+                      setD((c) => ({ ...c, numMax: e.target.value, answerSource: "manual" }))
+                    }
                   />
                 </Field>
               </div>
